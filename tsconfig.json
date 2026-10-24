@@ -12,7 +12,8 @@
     // "types": [],
     "module": "ESNext", // ✅ Change this (was "nodenext")
     "moduleResolution": "bundler", // ✅ Add this line
-    "target": "esnext",
+    // "target": "esnext", // Old line
+     "target": "ES2023", /* updated line in the doc */
 
     // For nodejs:
     // "lib": ["esnext"],
@@ -38,6 +39,8 @@
 
     // Recommended Options
     "strict": true,
+    "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
