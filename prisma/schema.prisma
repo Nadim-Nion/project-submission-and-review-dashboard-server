@@ -19,6 +19,12 @@ enum Role {
   SUPERADMIN
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String   @db.VarChar(80)
@@ -28,6 +34,34 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  submissions Project[] @relation("StudentSubmissions")
+  reviews     Project[] @relation("ProjectReviewer")
+
   @@index([role])
   @@map("users")
+}
+
+model Project {
+  id          String       @id @default(cuid())
+  name        String       @db.VarChar(150)
+  repoUrl     String       @map("repo_url") @db.VarChar(2048)
+  liveUrl     String?      @map("live_url") @db.VarChar(2048)
+  description String       @db.VarChar(5000)
+  status      ReviewStatus @default(PENDING)
+
+  studentId   String       @map("student_id")
+  reviewerId  String?      @map("reviewer_id")
+  reviewNote  String?      @map("review_note") @db.VarChar(2000)
+  reviewedAt  DateTime?    @map("reviewed_at")
+
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  student  User  @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ProjectReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, createdAt])
+  @@index([status, createdAt])
+  @@index([reviewerId])
+  @@map("projects")
 }

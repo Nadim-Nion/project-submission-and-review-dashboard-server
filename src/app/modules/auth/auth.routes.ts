@@ -10,10 +10,10 @@ router.post(
   validateRequest(AuthValidations.createUserValidationSchema),
   AuthControllers.registerUser,
 );
-router.post(
-  '/login',
-  validateRequest(AuthValidations.loginUserValidationSchema),
-  AuthControllers.loginUser,
-);
+// router.post(
+//   '/login',
+//   validateRequest(AuthValidations.loginUserValidationSchema),
+//   AuthControllers.loginUser,
+// );
 
 export const AuthRoutes = router;

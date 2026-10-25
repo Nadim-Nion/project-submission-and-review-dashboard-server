@@ -17,7 +17,10 @@ export const createUserValidationSchema = z.object({
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
-    .max(72, 'Password cannot exceed 72 characters'),
+    .refine(
+      (pw) => Buffer.byteLength(pw, 'utf8') <= 72,
+      'Password is too long (maximum 72 bytes)',
+    ),
 });
 
 export const loginUserValidationSchema = z.object({

@@ -18,18 +18,16 @@ const seedSuperAdmin = async () => {
 
   if (isSuperAdminExists) return;
 
-  const hashedPassword = await bcrypt.hash(config.super_admin_password!, 12);
+  const hashedPassword = await bcrypt.hash(config.super_admin_password, 12);
 
-  if (!isSuperAdminExists) {
-    await prisma.user.create({
-      data: {
-        name: 'Super Admin',
-        email: 'super-admin@gmail.com',
-        password: hashedPassword,
-        role: Role.SUPERADMIN,
-      },
-    });
-  }
+  await prisma.user.create({
+    data: {
+      name: 'Super Admin',
+      email: 'super-admin@gmail.com',
+      password: hashedPassword,
+      role: Role.SUPERADMIN,
+    },
+  });
 };
 
 export default seedSuperAdmin;

@@ -1,27 +1,35 @@
-const registerUserIntoDB = async (userData: unknown) => {
-  
+import bcrypt from 'bcrypt';
+import { prisma } from '../../../lib/prisma';
+import AppError from '../../errors/AppError';
+import { Prisma } from '../../../generated/prisma/client';
 
+const registerUserIntoDB = async (userData: {
+  name: string;
+  email: string;
+  password: string;
+}) => {
   const existingUser = await prisma.user.findUnique({
     where: {
-      email: validatedData.email,
+      email: userData.email,
     },
+    select: { id: true },
   });
 
   if (existingUser) {
-    throw new Error("User already exists with this email!");
+    throw new AppError(409, 'An account with this email already exists');
   }
 
   // 3. Hash the password
-  const passwordHash = await bcrypt.hash(validatedData.password, 12);
+  const passwordHash = await bcrypt.hash(userData.password, 12);
 
   try {
     // 4. Create the user in PostgreSQL
     const user = await prisma.user.create({
       data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        passwordHash,
-        role: "STUDENT",
+        name: userData.name,
+        email: userData.email,
+        password: passwordHash,
+        // role: "STUDENT",
       },
       select: {
         id: true,
@@ -35,21 +43,20 @@ const registerUserIntoDB = async (userData: unknown) => {
 
     return user;
   } catch (error) {
-    // 5. Handle a duplicate email inserted concurrently
+    // The DB constraint is the real guard against the race condition
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
+      error.code === 'P2002'
     ) {
-      throw new Error("User already exists with this email!");
+      throw new AppError(409, 'An account with this email already exists');
     }
-
-    throw error;
+    throw error; // let the global error handler deal with anything else
   }
 };
 
-const loginUserIntoDB = async (email: string, password: string) => {};
+// const loginUserIntoDB = async (email: string, password: string) => {};
 
 export const AuthServices = {
   registerUserIntoDB,
-  loginUserIntoDB,
+  // loginUserIntoDB,
 };

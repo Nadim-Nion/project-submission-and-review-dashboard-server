@@ -8,26 +8,26 @@ const registerUser: RequestHandler = catchAsync(async (req, res) => {
   const result = await AuthServices.registerUserIntoDB(req.body);
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'User is created successfully',
     data: result,
   });
 });
 
-const loginUser: RequestHandler = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const result = await AuthServices.loginUserIntoDB(email, password);
+// const loginUser: RequestHandler = catchAsync(async (req, res) => {
+//   const { email, password } = req.body;
+//   const result = await AuthServices.loginUserIntoDB(email, password);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User is logged in successfully',
-    data: result,
-  });
-});
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: 'User is logged in successfully',
+//     data: result,
+//   });
+// });
 
 export const AuthControllers = {
   registerUser,
-  loginUser,
+  // loginUser,
 };
