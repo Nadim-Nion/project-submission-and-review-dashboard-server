@@ -1,26 +1,35 @@
-// import config from '../config';
-// import { UserRole } from '../modules/user/user.constant';
-// // import { User } from '../modules/user/user.model';
+import { Role } from '../../generated/prisma/enums';
+import { prisma } from '../../lib/prisma';
+import config from '../config';
+// import { User } from '../modules/user/user.model';
+import bcrypt from 'bcrypt';
 
+const seedSuperAdmin = async () => {
+  // When database is connected, we'll check there is any user who is super admin
 
-// const superUser = {
-//   id: '0001',
-//   email: 'super-admin@gmail.com',
-//   password: config.super_admin_password || '',
-//   needsPasswordChange: false,
-//   role: UserRole.superAdmin,
-//   status: 'in-progress',
-//   isDeleted: false,
-// };
+  if (!config.super_admin_password) {
+    throw new Error('SUPER_ADMIN_PASSWORD is not set in .env');
+  }
 
-// const seedSuperAdmin = async () => {
-//   // When database is connected, we'll check there is any user who is super admin
+  // const isSuperAdminExists = await User.findOne({ role: UserRole.superAdmin });
+  const isSuperAdminExists = await prisma.user.findFirst({
+    where: { role: Role.SUPERADMIN },
+  });
 
-//   // const isSuperAdminExists = await User.findOne({ role: UserRole.superAdmin });
+  if (isSuperAdminExists) return;
 
-//   // if (!isSuperAdminExists) {
-//   //   await User.create(superUser);
-//   // }
-// };
+  const hashedPassword = await bcrypt.hash(config.super_admin_password!, 12);
 
-// export default seedSuperAdmin;
+  if (!isSuperAdminExists) {
+    await prisma.user.create({
+      data: {
+        name: 'Super Admin',
+        email: 'super-admin@gmail.com',
+        password: hashedPassword,
+        role: Role.SUPERADMIN,
+      },
+    });
+  }
+};
+
+export default seedSuperAdmin;
