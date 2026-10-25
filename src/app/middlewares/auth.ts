@@ -1,77 +1,77 @@
-import type { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status';
-import jwt, { type JwtPayload } from 'jsonwebtoken';
-import config from '../config';
-import AppError from '../errors/AppError';
-import catchAsync from '../utils/catchAsync';
-import type { TUserRole } from '../modules/user/user.interface';
-import { User } from '../modules/user/user.model';
+// import type { NextFunction, Request, Response } from 'express';
+// import httpStatus from 'http-status';
+// import jwt, { type JwtPayload } from 'jsonwebtoken';
+// import config from '../config';
+// import AppError from '../errors/AppError';
+// import catchAsync from '../utils/catchAsync';
+// import type { TUserRole } from '../modules/user/user.interface';
+// import { User } from '../modules/user/user.model';
 
 
-const auth = (...requiredRoles: TUserRole[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // Check whether the token is sent from the client
-    const token = req.headers.authorization;
+// const auth = (...requiredRoles: TUserRole[]) => {
+//   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+//     // Check whether the token is sent from the client
+//     const token = req.headers.authorization;
 
-    if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
-    }
+//     if (!token) {
+//       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+//     }
 
-    // Check whether the token is valid or not
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret as string,
-    ) as JwtPayload;
+//     // Check whether the token is valid or not
+//     const decoded = jwt.verify(
+//       token,
+//       config.jwt_access_secret as string,
+//     ) as JwtPayload;
 
-    if (!decoded) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
-    }
+//     if (!decoded) {
+//       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+//     }
 
-    // Check whether the user has the permission to access the resource
-    const { userId, role, iat } = decoded;
+//     // Check whether the user has the permission to access the resource
+//     const { userId, role, iat } = decoded;
 
-    // check the user is exist or not
-    const user = await User.isUserExistsByCustomId(userId);
+//     // check the user is exist or not
+//     const user = await User.isUserExistsByCustomId(userId);
 
-    if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
-    }
+//     if (!user) {
+//       throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+//     }
 
-    // Check the user is deleted or not
-    const isUserDeleted = user?.isDeleted;
+//     // Check the user is deleted or not
+//     const isUserDeleted = user?.isDeleted;
 
-    if (isUserDeleted) {
-      throw new AppError(
-        httpStatus.FORBIDDEN,
-        'User is deleted, please contact with admin',
-      );
-    }
+//     if (isUserDeleted) {
+//       throw new AppError(
+//         httpStatus.FORBIDDEN,
+//         'User is deleted, please contact with admin',
+//       );
+//     }
 
-    // Check the user is blocked or not
-    const userStatus = user?.status;
+//     // Check the user is blocked or not
+//     const userStatus = user?.status;
 
-    if (userStatus === 'blocked') {
-      throw new AppError(
-        httpStatus.FORBIDDEN,
-        'User is blocked, please contact with admin',
-      );
-    }
+//     if (userStatus === 'blocked') {
+//       throw new AppError(
+//         httpStatus.FORBIDDEN,
+//         'User is blocked, please contact with admin',
+//       );
+//     }
 
-    // Check the password was changed after the JWT was issued
-    if (
-      user.passwordChangeAt &&
-      User.isJWTIssuedBeforePasswordChange(user.passwordChangeAt, iat as number)
-    ) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
-    }
+//     // Check the password was changed after the JWT was issued
+//     if (
+//       user.passwordChangeAt &&
+//       User.isJWTIssuedBeforePasswordChange(user.passwordChangeAt, iat as number)
+//     ) {
+//       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+//     }
 
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
-    }
+//     if (requiredRoles && !requiredRoles.includes(role)) {
+//       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+//     }
 
-    req.user = decoded as JwtPayload;
-    next();
-  });
-};
+//     req.user = decoded as JwtPayload;
+//     next();
+//   });
+// };
 
-export default auth;
+// export default auth;

@@ -5,9 +5,28 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  // output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(80)
+  email     String   @unique @db.VarChar(254)
+  password  String   @db.VarChar(255)
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@map("users")
 }

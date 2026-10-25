@@ -1,16 +1,18 @@
 import { Server } from 'http';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 import app from './app.js';
 import config from './app/config/index.js';
-import seedSuperAdmin from './app/db';
+// import seedSuperAdmin from './app/db';
+import { prisma } from './lib/prisma.js';
 
 let server: Server;
 
 async function main() {
   try {
-    await mongoose.connect(config.database_url!);
+    // await mongoose.connect(config.database_url!);
+    await prisma.$connect();
 
-    await seedSuperAdmin();
+    // await seedSuperAdmin();
 
     server = app.listen(config.port, () => {
       console.log(`Express Project Setup listening on port ${config.port} 😊`);
